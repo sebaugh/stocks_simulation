@@ -1,36 +1,31 @@
-using DataFrames
 using Dates
 using MarketData
 using TimeSeries
 
 
 """
-    stocks_adj_close(tickers; years=10)
+    stocks_data(tickers; years=10)
 
-Downloads adjusted close prices from Yahoo Finance for the given tickers.
+Downloads OHLCV data from Yahoo Finance for the given tickers.
 
 # Arguments
 - `tickers`: ticker symbol or list of ticker symbols
 - `years`: number of years of historical data to download (default: 10)
 
 # Returns
-- `stocks_close`: DataFrame with tickers as column names and adjusted close prices as values
+- `Dict` mapping each ticker to a TimeArray with columns: Open, High, Low, Close, AdjClose, Volume
 """
-function stocks_adj_close(tickers; years = 10)
+function stocks_data(tickers; years = 10)
 
-    stocks_close = Vector{Vector{Float64}}()
+    data = Dict{String, TimeArray}()
 
     # downloading data iterating through tickers
     for ticker in tickers
-        stock = yahoo(ticker, 
+        data[ticker] = MarketData.yahoo(ticker,
         YahooOpt(
-            period1 = now()- Year(years), 
+            period1 = now() - Year(years),
             period2 = now() - Day(1)))
-        stock = DataFrame(stock).AdjClose
-        push!(stocks_close, stock)
     end
 
-    # transforming data to dataframe format
-    stocks_close = DataFrame(reduce(hcat, stocks_close), tickers)
-    return stocks_close
+    return data
 end
