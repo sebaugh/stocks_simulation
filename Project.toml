@@ -2,14 +2,12 @@ name = "StocksSimulation"
 uuid = "f50a834d-cb3c-46a6-b729-597a11f58bb9"
 
 [deps]
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 MarketData = "945b72a4-3b13-509d-9b46-1525bb5c06de"
 TimeSeries = "9e3dc215-6440-5c97-bce1-76c03772f85e"
 
 [extras]
-Mocking = "78c3b35d-d492-501b-9361-3d52fe80e533"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Mocking", "Test"]
+test = ["Test"]

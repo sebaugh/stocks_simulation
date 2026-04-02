@@ -29,3 +29,26 @@ function stocks_data(tickers; years = 10)
 
     return data
 end
+
+"""
+    get_field(data, field)
+
+Downloads the specified field (e.g. :AdjClose) for the given tickers.
+
+# Arguments
+- `data`: a dictionary mapping ticker symbols to TimeArrays
+- `field`: the field to download (e.g. :AdjClose)
+
+# Returns
+- `TimeArray` with columns for each ticker and rows indexed by date
+"""
+function get_field(data::Dict{String, TimeArray}, field)
+
+    tickers = keys(data)
+
+    # extract the specified field and combine into a single TimeArray
+    field_data = [data[ticker][field] for ticker in tickers]
+    combined = reduce((x, y) -> merge(x, y), field_data)
+    
+    return TimeArray(timestamp(combined), values(combined), Symbol.(tickers))
+end

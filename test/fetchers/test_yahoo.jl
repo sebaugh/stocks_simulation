@@ -5,29 +5,59 @@ using TimeSeries
 include("../../src/fetchers/yahoo.jl")
 
 
-@testset "stocks_data" begin
+@testset "yahoo fetcher" begin
 
-    result = stocks_data(["AAPL", "MSFT"]; years = 1)
+    data = stocks_data(["AAPL", "MSFT"]; years = 1)
 
-    @testset "returns a Dict" begin
-        @test result isa Dict
+    @testset "stocks_data" begin
+
+        @testset "returns a Dict" begin
+            @test data isa Dict
+        end
+
+        @testset "keys match tickers" begin
+            @test sort(collect(keys(data))) == ["AAPL", "MSFT"]
+        end
+
+        @testset "values are TimeArrays" begin
+            @test data["AAPL"] isa TimeArray
+            @test data["MSFT"] isa TimeArray
+        end
+
+        @testset "correct columns" begin
+            @test all(col in colnames(data["AAPL"]) for col in [:Open, :High, :Low, :Close, :AdjClose, :Volume])
+        end
+
+        @testset "correct number of rows" begin
+            @test size(data["AAPL"], 1) > 0
+        end
+
     end
 
-    @testset "keys match tickers" begin
-        @test sort(collect(keys(result))) == ["AAPL", "MSFT"]
-    end
+    if data isa Dict && all(v isa TimeArray for v in values(data))
 
-    @testset "values are TimeArrays" begin
-        @test result["AAPL"] isa TimeArray
-        @test result["MSFT"] isa TimeArray
-    end
+        @testset "get_field" begin
 
-    @testset "correct columns" begin
-        @test all(col in colnames(result["AAPL"]) for col in [:Open, :High, :Low, :Close, :AdjClose, :Volume])
-    end
+            result = get_field(data, :AdjClose)
 
-    @testset "correct number of rows" begin
-        @test size(result["AAPL"], 1) > 0
+            @testset "returns a TimeArray" begin
+                @test result isa TimeArray
+            end
+
+            @testset "columns match tickers" begin
+                @test sort(collect(string.(colnames(result)))) == ["AAPL", "MSFT"]
+            end
+
+            @testset "correct number of rows" begin
+                @test size(result, 1) > 0
+            end
+
+            @testset "single column per ticker" begin
+                @test size(result, 2) == 2
+            end
+
+        end
+
     end
 
 end
