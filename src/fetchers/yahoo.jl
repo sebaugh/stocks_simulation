@@ -47,7 +47,7 @@ function get_field(data::Dict{String, TimeArray}, field)
     tickers = keys(data)
 
     # extract the specified field and combine into a single TimeArray
-    field_data = [data[ticker][field] for ticker in tickers]
+    field_data = [TimeArray(timestamp(data[ticker][field]), Float64.(values(data[ticker][field])), colnames(data[ticker][field])) for ticker in tickers]
     combined = reduce((x, y) -> merge(x, y), field_data)
     
     return TimeArray(timestamp(combined), values(combined), Symbol.(tickers))
