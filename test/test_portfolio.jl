@@ -1,27 +1,27 @@
 using Test
 using Statistics
+using TimeSeries
+using Dates
 
 include("../src/portfolio.jl")
 
 
 # Fixed input: 4 time steps, 2 tickers
-returns = [0.01 0.02;
-           0.03 0.01;
-           0.02 0.04;
-           0.01 0.03]
+dates = Date(2024,1,1):Day(1):Date(2024,1,4) |> collect
+returns = TimeArray(dates, [0.01 0.02; 0.03 0.01; 0.02 0.04; 0.01 0.03], [:A, :B])
 
 
 @testset "portfolio_mean" begin
 
     @testset "equal weights" begin
         weights = [0.5, 0.5]
-        expected = sum(weights .* mean(returns, dims=1))
+        expected = sum(weights .* mean(TimeSeries.values(returns), dims=1))
         @test portfolio_mean(weights, returns) ≈ expected
     end
 
     @testset "unequal weights" begin
         weights = [0.8, 0.2]
-        expected = sum(weights .* mean(returns, dims=1))
+        expected = sum(weights .* mean(TimeSeries.values(returns), dims=1))
         @test portfolio_mean(weights, returns) ≈ expected
     end
 
@@ -32,7 +32,7 @@ end
 
     @testset "matches manual calculation" begin
         weights = [0.5, 0.5]
-        expected = weights' * cov(returns) * weights
+        expected = weights' * cov(TimeSeries.values(returns)) * weights
         @test portfolio_variance(weights, returns) ≈ expected
     end
 
