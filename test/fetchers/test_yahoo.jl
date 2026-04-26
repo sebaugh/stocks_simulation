@@ -1,8 +1,4 @@
 using Test
-using Dates
-using TimeSeries
-
-include("../../src/fetchers/yahoo.jl")
 
 
 @testset "yahoo fetcher" begin

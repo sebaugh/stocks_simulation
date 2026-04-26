@@ -1,9 +1,4 @@
 using Test
-using Statistics
-using TimeSeries
-using Dates
-
-include("../src/portfolio.jl")
 
 
 # Fixed input: 4 time steps, 2 tickers

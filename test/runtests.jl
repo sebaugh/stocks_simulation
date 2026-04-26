@@ -1,4 +1,8 @@
 using Test
+using StocksSimulation
+using TimeSeries
+using Dates
+using Statistics
 
 @testset "StocksSimulation" begin
     include("fetchers/test_yahoo.jl")

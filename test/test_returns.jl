@@ -1,8 +1,4 @@
 using Test
-using Dates
-using TimeSeries
-
-include("../src/returns.jl")
 
 
 # fixed input for all tests
