@@ -13,8 +13,8 @@ Computes cumulative returns relative to the first day for each ticker.
 - `TimeArray` with each column divided by its first value
 """
 function cumulative_returns(ta::TimeArray)
-    values = TimeSeries.values(ta)
-    return TimeArray(timestamp(ta), values ./ values[1:1, :], colnames(ta))
+    vals = TimeSeries.values(ta)
+    return TimeArray(timestamp(ta), vals ./ vals[1:1, :], colnames(ta))
 end
 
 
@@ -30,7 +30,7 @@ Computes daily log returns for each ticker.
 - `TimeArray` of log returns with the first row dropped
 """
 function log_returns(ta::TimeArray)
-    values = TimeSeries.values(ta)
-    log_values = log.(values) - log.(circshift(values, (1, 0)))
-    return TimeArray(timestamp(ta)[2:end], log_values[2:end, :], colnames(ta))
+    vals = TimeSeries.values(ta)
+    log_vals = log.(vals[2:end, :]) .- log.(vals[1:end-1, :])
+    return TimeArray(timestamp(ta)[2:end], log_vals, colnames(ta))
 end
