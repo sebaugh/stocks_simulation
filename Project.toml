@@ -12,7 +12,9 @@ TimeSeries = "9e3dc215-6440-5c97-bce1-76c03772f85e"
 [compat]
 Ipopt = "1.14.1"
 JuMP = "1.30.0"
+MarketData = "0.15.2"
 Statistics = "1.11.1"
+TimeSeries = "0.26.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
