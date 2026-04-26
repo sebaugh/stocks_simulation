@@ -1,11 +1,6 @@
 using Test
-using Dates
-using TimeSeries
-using Statistics
 using LinearAlgebra
-
-include("../src/returns.jl")
-include("../src/simulation.jl")
+using Random
 
 
 dates = [Date(2020, 1, 1) + Day(i) for i in 0:9]
@@ -52,6 +47,39 @@ ta = TimeArray(dates, prices, [:A, :B, :C])
     @testset "std matches log returns" begin
         data_r = TimeSeries.values(log_returns(ta))
         @test std_r ≈ std(data_r)
+    end
+
+end
+
+
+@testset "model" begin
+
+    weights = [0.5, 0.3, 0.2]
+
+    @testset "returns a scalar" begin
+        Random.seed!(42)
+        @test model(ta, 10, weights) isa Float64
+    end
+
+    @testset "result is positive" begin
+        Random.seed!(42)
+        @test model(ta, 10, weights) > 0
+    end
+
+    @testset "reproducible with fixed seed" begin
+        Random.seed!(42)
+        v1 = model(ta, 10, weights)
+        Random.seed!(42)
+        v2 = model(ta, 10, weights)
+        @test v1 == v2
+    end
+
+    @testset "different weights give different results" begin
+        Random.seed!(42)
+        v1 = model(ta, 10, [0.5, 0.3, 0.2])
+        Random.seed!(42)
+        v2 = model(ta, 10, [0.2, 0.3, 0.5])
+        @test v1 != v2
     end
 
 end
