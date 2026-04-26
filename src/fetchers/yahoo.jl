@@ -17,10 +17,10 @@ Downloads OHLCV data from Yahoo Finance for the given tickers.
 """
 function stocks_data(tickers; years = 10)
 
+    ticker_list = tickers isa AbstractString ? [tickers] : tickers
     data = Dict{String, TimeArray}()
 
-    # downloading data iterating through tickers
-    for ticker in tickers
+    for ticker in ticker_list
         data[ticker] = MarketData.yahoo(ticker,
         YahooOpt(
             period1 = now() - Year(years),
@@ -44,11 +44,10 @@ Downloads the specified field (e.g. :AdjClose) for the given tickers.
 """
 function get_field(data::Dict{String, TimeArray}, field)
 
-    tickers = keys(data)
+    tickers = sort(collect(keys(data)))
 
-    # extract the specified field and combine into a single TimeArray
     field_data = [TimeArray(timestamp(data[ticker][field]), Float64.(values(data[ticker][field])), colnames(data[ticker][field])) for ticker in tickers]
     combined = reduce((x, y) -> merge(x, y), field_data)
-    
+
     return TimeArray(timestamp(combined), values(combined), Symbol.(tickers))
 end
