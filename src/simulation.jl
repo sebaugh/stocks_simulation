@@ -24,22 +24,23 @@ end
 
 
 """
-    model(ta, horizon, weights, v)
+    model(mean_r, L, P0, horizon, weights, v)
 
-Simulates portfolio value after `horizon` trading days using a multivariate t-distribution model.
+Simulates portfolio value after `horizon` trading days using a multivariate Student-t model.
 
 # Arguments
-- `ta`: TimeArray of asset prices
+- `mean_r`: vector of mean log returns per asset
+- `L`: lower Cholesky factor of the covariance matrix
+- `P0`: vector of initial asset prices
 - `horizon`: number of trading days to simulate
 - `weights`: vector of portfolio weights (one per asset)
 - `v`: degrees of freedom for the t-distribution
+
 # Returns
 - scalar simulated portfolio value at end of horizon
 """
-function model(ta::TimeArray, horizon::Int, weights::Vector, v::Int)
-    mean_r, L = decompose(ta)
-    P0 = TimeSeries.values(ta)[end, :]
-    n = size(ta, 2) 
+function model(mean_r::Vector, L::LowerTriangular, P0::Vector, horizon::Int, weights::Vector, v::Int)
+    n = length(mean_r)
     rates = Matrix{Float64}(undef, horizon, n)
     for day in 1:horizon
         z = randn(n)
@@ -53,6 +54,27 @@ end
 
 
 """
+    model(ta, horizon, weights, v)
+
+Convenience method — decomposes `ta` and delegates to the core model method.
+
+# Arguments
+- `ta`: TimeArray of asset prices
+- `horizon`: number of trading days to simulate
+- `weights`: vector of portfolio weights (one per asset)
+- `v`: degrees of freedom for the t-distribution
+
+# Returns
+- scalar simulated portfolio value at end of horizon
+"""
+function model(ta::TimeArray, horizon::Int, weights::Vector, v::Int)
+    mean_r, L = decompose(ta)
+    P0 = TimeSeries.values(ta)[end, :]
+    return model(mean_r, L, P0, horizon, weights, v)
+end
+
+
+"""
     run_simulation(iter, ta, horizon, weights, v)
 
 # Arguments
@@ -61,9 +83,12 @@ end
 - `horizon`: number of trading days to simulate
 - `weights`: vector of portfolio weights (one per asset)
 - `v`: degrees of freedom for the t-distribution
+
 # Returns
 - vector of simulated portfolio values at end of horizon
 """
 function run_simulation(iter::Int, ta::TimeArray, horizon::Int, weights::Vector, v::Int)
-    return [model(ta, horizon, weights, v) for _ in 1:iter]
+    mean_r, L = decompose(ta)
+    P0 = TimeSeries.values(ta)[end, :]
+    return [model(mean_r, L, P0, horizon, weights, v) for _ in 1:iter]
 end
