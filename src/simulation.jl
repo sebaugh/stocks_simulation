@@ -45,3 +45,20 @@ function model(ta::TimeArray, horizon::Int, weights::Vector)
     r_cum = exp.(vec(sum(rates, dims=1)))
     return sum(weights .* P0 .* r_cum)
 end
+
+
+"""
+    run_simulation(iter, ta, horizon, weights)
+
+# Arguments
+- `iter`: number of simulation iterations
+- `ta`: TimeArray of asset prices
+- `horizon`: number of trading days to simulate
+- `weights`: vector of portfolio weights (one per asset)
+
+# Returns
+- vector of simulated portfolio values at end of horizon
+"""
+function run_simulation(iter::Int, ta::TimeArray, horizon::Int, weights::Vector)
+    return [model(ta, horizon, weights) for _ in 1:iter]
+end

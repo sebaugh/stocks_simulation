@@ -8,6 +8,6 @@ include("simulation.jl")
 export stocks_data, get_field
 export cumulative_returns, log_returns
 export portfolio_mean, portfolio_variance, optimize_portfolio
-export decompose, model
+export decompose, model, run_simulation
 
 end
