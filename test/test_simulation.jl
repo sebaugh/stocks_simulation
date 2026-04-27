@@ -19,14 +19,11 @@ ta = TimeArray(dates, prices, [:A, :B, :C])
 
 @testset "decompose" begin
 
-    mean_r, std_r, L = decompose(ta)
+    mean_r, L = decompose(ta)
 
-    @testset "mean is a scalar" begin
-        @test mean_r isa Float64
-    end
-
-    @testset "std is a scalar" begin
-        @test std_r isa Float64
+    @testset "mean is a vector" begin
+        @test mean_r isa Vector{Float64}
+        @test length(mean_r) == size(ta, 2)
     end
 
     @testset "L is lower triangular" begin
@@ -34,19 +31,14 @@ ta = TimeArray(dates, prices, [:A, :B, :C])
         @test size(L) == (3, 3)
     end
 
-    @testset "L recovers correlation matrix" begin
+    @testset "L recovers covariance matrix" begin
         data_r = TimeSeries.values(log_returns(ta))
-        @test L * L' ≈ cor(data_r)
+        @test L * L' ≈ cov(data_r)
     end
 
     @testset "mean matches log returns" begin
         data_r = TimeSeries.values(log_returns(ta))
-        @test mean_r ≈ mean(data_r)
-    end
-
-    @testset "std matches log returns" begin
-        data_r = TimeSeries.values(log_returns(ta))
-        @test std_r ≈ std(data_r)
+        @test mean_r ≈ vec(mean(data_r, dims=1))
     end
 
 end

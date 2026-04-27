@@ -12,12 +12,13 @@ Extracts statistical parameters of asset returns needed for Monte Carlo simulati
 - `ta`: TimeArray of asset prices (rows = time steps, columns = assets)
 
 # Returns
-- `(mean_r, std_r, L)`: scalar mean log return, scalar std of log returns,
-  lower Cholesky factor of the correlation matrix
+- `(mean_r, L)`: vector of mean log return, lower Cholesky factor of the covariance matrix
 """
 function decompose(ta::TimeArray)
     data_r = TimeSeries.values(log_returns(ta))
-    return mean(data_r), std(data_r), cholesky(cor(data_r)).L
+    mean_r = vec(mean(data_r, dims=1))
+    L = cholesky(cov(data_r)).L
+    return mean_r, L
 end
 
 
@@ -35,12 +36,12 @@ Simulates portfolio value after `horizon` trading days using a multivariate norm
 - scalar simulated portfolio value at end of horizon
 """
 function model(ta::TimeArray, horizon::Int, weights::Vector)
-    mean_r, std_r, L = decompose(ta)
+    mean_r, L = decompose(ta)
     P0 = TimeSeries.values(ta)[end, :]
     n = size(ta, 2)
     rates = Matrix{Float64}(undef, horizon, n)
     for day in 1:horizon
-        rates[day, :] = L * randn(n) * std_r .+ mean_r
+        rates[day, :] = L * randn(n) .+ mean_r
     end
     r_cum = exp.(vec(sum(rates, dims=1)))
     return sum(weights .* P0 .* r_cum)
