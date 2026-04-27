@@ -50,27 +50,27 @@ end
 
     @testset "returns a scalar" begin
         Random.seed!(42)
-        @test model(ta, 10, weights) isa Float64
+        @test model(ta, 10, weights, 5) isa Float64
     end
 
     @testset "result is positive" begin
         Random.seed!(42)
-        @test model(ta, 10, weights) > 0
+        @test model(ta, 10, weights, 5) > 0
     end
 
     @testset "reproducible with fixed seed" begin
         Random.seed!(42)
-        v1 = model(ta, 10, weights)
+        v1 = model(ta, 10, weights, 5)
         Random.seed!(42)
-        v2 = model(ta, 10, weights)
+        v2 = model(ta, 10, weights, 5)
         @test v1 == v2
     end
 
     @testset "different weights give different results" begin
         Random.seed!(42)
-        v1 = model(ta, 10, [0.5, 0.3, 0.2])
+        v1 = model(ta, 10, [0.5, 0.3, 0.2], 5)
         Random.seed!(42)
-        v2 = model(ta, 10, [0.2, 0.3, 0.5])
+        v2 = model(ta, 10, [0.2, 0.3, 0.5], 5)
         @test v1 != v2
     end
 
@@ -82,18 +82,18 @@ end
 
     @testset "returns a vector" begin
         Random.seed!(42)
-        @test run_simulation(100, ta, 10, weights) isa Vector{Float64}
+        @test run_simulation(100, ta, 10, weights, 5) isa Vector{Float64}
     end
 
     @testset "vector has correct length" begin
         Random.seed!(42)
-        sim_values = run_simulation(100, ta, 10, weights)
+        sim_values = run_simulation(100, ta, 10, weights, 5)
         @test length(sim_values) == 100
     end
 
     @testset "all values are positive" begin
         Random.seed!(42)
-        sim_values = run_simulation(100, ta, 10, weights)
+        sim_values = run_simulation(100, ta, 10, weights, 5)
         @test all(v -> v > 0, sim_values)
     end
 
